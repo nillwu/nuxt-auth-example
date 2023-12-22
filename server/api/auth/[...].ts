@@ -1,8 +1,15 @@
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GithubProvider from 'next-auth/providers/github'
+import LineProvider from 'next-auth/providers/line'
+
+import { PrismaAdapter } from '@auth/prisma-adapter'
+import { PrismaClient } from '@prisma/client'
 import { NuxtAuthHandler } from '#auth'
 
+const prisma = new PrismaClient()
+
 export default NuxtAuthHandler({
+  adapter: PrismaAdapter(prisma),
   // TODO: SET A STRONG SECRET, SEE https://sidebase.io/nuxt-auth/configuration/nuxt-auth-handler#secret
   secret: process.env.AUTH_SECRET || 'my-auth-secret',
   // TODO: ADD YOUR OWN AUTHENTICATION PROVIDER HERE, READ THE DOCS FOR MORE: https://sidebase.io/nuxt-auth
@@ -11,6 +18,22 @@ export default NuxtAuthHandler({
     GithubProvider.default({
       clientId: process.env.GITHUB_CLIENT_ID || 'enter-your-client-id-here',
       clientSecret: process.env.GITHUB_CLIENT_SECRET || 'enter-your-client-secret-here'
+    }),
+    LineProvider.default({
+      clientId: process.env.LINE_CLIENT_ID || 'enter-your-client-id-here',
+      clientSecret: process.env.LINE_CLIENT_SECRET || 'enter-your-client-secret-here',
+      authorization: { params: { scope: 'profile openid email' } },
+      profile (profileResponse) {
+        console.log('LINE Profile Response:', profileResponse)
+        return {
+          id: profileResponse.sub, // 确保从 LINE 响应中提取正确的 ID 字段
+          name: profileResponse.name,
+          email: profileResponse.email,
+          image: profileResponse.picture
+          // sub: profileResponse.sub // 确保从 LINE 响应中提取正确的 ID 字段
+          // 其他需要的字段...
+        }
+      }
     }),
     // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
     CredentialsProvider.default({

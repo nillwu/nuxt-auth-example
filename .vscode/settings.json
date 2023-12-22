@@ -1,10 +1,10 @@
 {
   // Use `eslint` for vue, ts and js
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "[vue]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "Vue.volar"
   },
   "[js]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
